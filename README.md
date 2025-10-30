@@ -1,6 +1,6 @@
 
 <p align="center">
-  <img src="assets/ghost-banner.png" alt="GHOST VPN Monitor" width="85%"/>
+  <img src="GHOST.png" alt="GHOST VPN Monitor" width="85%"/>
 </p>
 
 # 🕶️ GHOST VPN Monitor — v2.0  
