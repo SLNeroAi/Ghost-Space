@@ -1,0 +1,622 @@
+<!DOCTYPE html>
+<html lang="si">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>GHOST VPN</title> <!-- නම වෙනස් කළා -->
+
+<!-- Icons + Charts -->
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+<script src="https://cdn.jsdelivr.net/npm/apexcharts"></script>
+<!-- Font: Roboto Mono -->
+<link href="https://fonts.googleapis.com/css2?family=Roboto+Mono:wght@400;700&display=swap" rel="stylesheet">
+
+<style>
+/* ===== BASE (Hacker Green Theme) ===== */
+:root {
+  --bg-color: #000000;
+  --panel-color: rgba(0, 20, 0, 0.7); /* Hacker Green + transparency */
+  --border-color: rgba(0, 255, 0, 0.4);
+  --accent-green: #00ff00; /* Matrix Green */
+  --text-color: #ffffff;
+  --text-muted: #a0a0b0;
+  --font-ui: 'Roboto Mono', monospace; /* හැමදේම Monospace */
+  --font-data: 'Roboto Mono', monospace;
+}
+
+*{margin:0;padding:0;box-sizing:border-box;}
+body{
+  font-family: var(--font-ui);
+  background: var(--bg-color);
+  color: var(--text-color);
+  overflow-x:hidden;
+  min-height:100vh;
+  display:flex;
+  flex-direction:column;
+  position:relative;
+}
+
+/* ===== "NEURO-WEB" ANIMATED CANVAS BACKGROUND ===== */
+#neuro-canvas {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  z-index: 0;
+  opacity: 0.4;
+}
+
+/* ===== CONTAINER ===== */
+.container{
+  position:relative;
+  z-index:2;
+  max-width:1300px;
+  margin:auto;
+  padding:40px 20px;
+  flex:1;
+}
+
+/* ===== TOP BAR ===== */
+.topbar{
+  display:flex;align-items:center;justify-content:space-between;gap:12px;margin-bottom:40px;
+}
+.brand{
+  display:flex;align-items:center;gap:12px;font-size:26px;font-weight:800;letter-spacing:1px;
+  color: var(--accent-green);
+  text-shadow: 0 0 10px var(--accent-green);
+}
+.brand i{
+  font-size:26px;
+  color: var(--accent-green);
+}
+.actions{display:flex;gap:12px;}
+.btn{
+  border: none; 
+  padding: 10px 16px;
+  border-radius: 0px; /* Sharp */
+  font-weight:700;
+  font-family: var(--font-ui);
+  cursor:pointer;
+  transition: all 0.3s;
+  text-transform: uppercase;
+  font-size: 14px;
+  background: var(--accent-green);
+  color: var(--bg-color);
+}
+.btn.outline{
+  background: transparent;
+  border: 2px solid var(--accent-green);
+  color: var(--accent-green);
+}
+.btn:hover{
+  background: #fff;
+  color: #000;
+  box-shadow: 0 0 20px rgba(0, 255, 0, 0.5);
+}
+.btn.outline:hover {
+  background: var(--accent-green);
+  color: var(--bg-color);
+}
+
+/* ===== GRID ===== */
+.grid{
+  display:grid;
+  grid-template-columns:repeat(3,1fr);
+  gap: 25px;
+}
+@media(max-width:1024px){.grid{grid-template-columns:repeat(2,1fr);}}
+@media(max-width:700px){.grid{grid-template-columns:1fr;}}
+
+/* ===== CARD ===== */
+.card{
+  position:relative;
+  padding:28px;
+  border-radius: 0px; /* Sharp */
+  overflow:hidden;
+  background: var(--panel-color);
+  backdrop-filter: blur(5px);
+  border: 1px solid var(--border-color);
+  box-shadow: 0 0 15px 0 rgba(0, 255, 0, 0.2);
+  transition: all 0.3s ease;
+  z-index: 1;
+}
+.card:hover{
+  transform:translateY(-5px);
+  box-shadow: 0 0 25px 0 rgba(0, 255, 0, 0.5);
+  border-color: var(--accent-green);
+}
+
+.card>*{position:relative;z-index:3;}
+
+/* ===== HEADINGS ===== */
+.card h3{
+  display:flex;align-items:center;gap:10px;
+  font-size:20px;font-weight:600;
+  color: var(--accent-green);
+  margin-bottom:18px;
+  text-transform: uppercase;
+}
+.card h3 i{color: var(--accent-green);}
+
+/* ===== METRICS ===== */
+.metric{
+  display:flex;align-items:center;justify-content:space-between;gap:10px;
+  background:rgba(0,0,0,0.2);
+  border-radius: 0px;
+  padding:10px 14px;margin:8px 0;
+  border: 1px solid var(--border-color);
+}
+.metric .label{display:flex;align-items:center;gap:8px;font-weight:600;}
+.badge{
+  background: rgba(0, 255, 0, 0.1);
+  border: 1px solid var(--border-color);
+  padding: 4px 8px;
+  border-radius: 0px;
+  font-size: 13px;
+  color: var(--text-color);
+  font-family: var(--font-data);
+}
+
+/* ===== TOGGLE (Hacker Style) ===== */
+.toggle{
+  width:44px;height:24px;
+  background: rgba(0,0,0,0.5); /* Dark bg */
+  border-radius: 0; /* Sharp */
+  border: 1px solid var(--border-color);
+  position:relative;cursor:pointer;flex-shrink:0;
+}
+.toggle::after{
+  content:"";position:absolute;top: 2px;left: 3px;
+  width: 18px;height: 18px;
+  border-radius: 0; /* Sharp */
+  background: #fff;
+  transition:left .2s ease;
+}
+.toggle.active{background: var(--accent-green);}
+.toggle.active::after{left: 23px; background: #000;} /* Green bg, black knob */
+
+
+/* ===== PROGRESS BAR ===== */
+.progress-container{
+  background:rgba(0,0,0,0.2);
+  border-radius: 0px;
+  height: 8px;
+  overflow: hidden;
+  margin-top: 6px;
+  border: 1px solid var(--border-color);
+}
+.progress-bar{
+  height:100%;
+  background: var(--accent-green);
+  transition: width 0.5s ease;
+  box-shadow: 0 0 10px var(--accent-green);
+}
+
+/* ===== CHARTS ===== */
+.chart{width:100%;height:260px;}
+.chart.small{height:220px;}
+.muted{opacity:0.85;font-size:13px; margin-top: 10px;}
+.pill{
+  position:absolute;top:12px;right:12px;
+  font-size:12px;padding:6px 10px;border-radius: 0px;
+  background: rgba(0, 255, 0, 0.1);
+  border: 1px solid var(--border-color);
+  font-family: var(--font-data);
+}
+.ok{color: var(--accent-green);} 
+.warn{color:#ffff00;} /* Yellow */
+.danger{color:#ff0000;} /* Red */
+
+/* ===== FOOTER ===== */
+.footer{
+  text-align:center;
+  padding:40px 20px;
+  font-size:13px;
+  color: var(--text-muted);
+  border-top: 1px solid var(--border-color);
+  margin-top: 25px;
+}
+</style>
+</head>
+<body>
+  
+  <!-- "NEURO-WEB" ANIMATED CANVAS BACKGROUND -->
+  <canvas id="neuro-canvas"></canvas>
+
+  <div class="container">
+
+    <!-- Top -->
+    <div class="topbar">
+      <div class="brand">
+        <i class="fa-solid fa-ghost"></i> GHOST VPN
+      </div>
+      <div class="actions">
+        <a class="btn outline" href="/"><i class="fa-solid fa-arrow-left"></i> Back</a>
+        <a class="btn" href="https://github.com/Tyga-x/Traffic-X" target="_blank"><i class="fa-brands fa-github"></i></a>
+      </div>
+    </div>
+
+    <!-- GRID (3 x 2 like index) -->
+    <div class="grid">
+
+      <!-- User Overview -->
+      <div class="card">
+        <span class="pill"><i class="fa-regular fa-user"></i> {{ email }}</span>
+        <h3><i class="fa-solid fa-id-badge"></i>User Overview</h3>
+
+        <div class="metric">
+          <div class="label"><i class="fa-solid fa-shield-heart"></i> Config Status</div>
+          <div style="display:flex;align-items:center;gap:10px">
+            <span id="status-text" class="badge">—</span>
+            <div id="config-toggle" class="toggle"></div>
+          </div>
+        </div>
+
+        <div class="metric">
+          <div class="label"><i class="fa-solid fa-calendar-xmark"></i> Expiry</div>
+          <div class="badge" id="expiry-badge">{{ expiry_date }}</div>
+        </div>
+
+        <div class="muted">Toggle user access status.</div>
+      </div>
+
+      <!-- Usage (numbers + progress) -->
+      <div class="card">
+        <h3><i class="fa-solid fa-gauge-high"></i>Usage</h3>
+
+        <div class="metric">
+          <div class="label"><i class="fa-solid fa-upload"></i> Uploaded</div>
+          <div class="badge">{{ up }}</div>
+        </div>
+        <div class="progress-container"><div id="uploaded-bar" class="progress-bar"></div></div>
+
+        <div class="metric">
+          <div class="label"><i class="fa-solid fa-download"></i> Downloaded</div>
+          <div class="badge">{{ down }}</div>
+        </div>
+        <div class="progress-container"><div id="downloaded-bar" class="progress-bar"></div></div>
+
+        <div class="metric">
+          <div class="label"><i class="fa-solid fa-hard-drive"></i> Limit</div>
+          <div class="badge">{{ total }}</div>
+        </div>
+        <div class="progress-container"><div id="limit-bar" class="progress-bar"></div></div>
+      </div>
+
+      <!-- Expiry Gauge (days left) -->
+      <div class="card">
+        <h3><i class="fa-regular fa-clock"></i>Days to Expiry</h3>
+        <div id="expiry-gauge" class="chart small"></div>
+        <div class="muted" id="expiry-desc">—</div>
+      </div>
+
+      <!-- Summary Chart (Upload/Download vs Remaining) -->
+      <div class="card">
+        <h3><i class="fa-solid fa-chart-line"></i>Summary (Live)</h3>
+        <div id="summary-chart" class="chart"></div>
+        <div class="muted">Uploads & Downloads vs. Remaining Quota.</div>
+      </div>
+
+      <!-- Breakdown Donut -->
+      <div class="card">
+        <h3><i class="fa-solid fa-chart-pie"></i>Usage Breakdown</h3>
+        <div id="breakdown" class="chart small"></div>
+      </div>
+
+      <!-- Quick Info -->
+      <div class="card">
+        <h3><i class="fa-solid fa-circle-info"></i>Quick Info</h3>
+        <div class="metric">
+          <div class="label"><i class="fa-solid fa-signal"></i> Total Used</div>
+          <div class="badge" id="total-used-badge">—</div>
+        </div>
+        <div class="metric">
+          <div class="label"><i class="fa-solid fa-box-archive"></i> Remaining</div>
+          <div class="badge" id="remaining-badge">—</div>
+        </div>
+        <div class="metric">
+          <div class="label"><i class="fa-solid fa-percent"></i> Utilization</div>
+          <div class="badge" id="utilization-badge">—</div>
+        </div>
+      </div>
+
+    </div>
+
+    <div class="footer">© 2025 GHOST VPN. All rights reserved.</div>
+  </div>
+
+  <script>
+    // ===== "NEURO-WEB" ANIMATED CANVAS SCRIPT (HACKER GREEN THEME) =====
+    const canvas = document.getElementById('neuro-canvas');
+    const ctx = canvas.getContext('2d');
+    canvas.width = window.innerWidth;
+    canvas.height = window.innerHeight;
+
+    let particlesArray;
+    let mouse = {
+      x: null,
+      y: null,
+      radius: (canvas.height / 120) * (canvas.width / 120)
+    };
+    // ... (rest of the canvas script from index.html) ...
+        window.addEventListener('mousemove', function(event) {
+      mouse.x = event.x;
+      mouse.y = event.y;
+    });
+    window.addEventListener('mouseout', function() {
+      mouse.x = null;
+      mouse.y = null;
+    });
+
+    // Particle class
+    class Particle {
+      constructor(x, y, directionX, directionY, size, color) {
+        this.x = x;
+        this.y = y;
+        this.directionX = directionX;
+        this.directionY = directionY;
+        this.size = size;
+        this.color = color;
+      }
+      draw() {
+        ctx.beginPath();
+        ctx.arc(this.x, this.y, this.size, 0, Math.PI * 2, false);
+        ctx.fillStyle = this.color;
+        ctx.fill();
+      }
+      update() {
+        if (this.x > canvas.width || this.x < 0) {
+          this.directionX = -this.directionX;
+        }
+        if (this.y > canvas.height || this.y < 0) {
+          this.directionY = -this.directionY;
+        }
+        
+        let dx = mouse.x - this.x;
+        let dy = mouse.y - this.y;
+        let distance = Math.sqrt(dx * dx + dy * dy);
+        if (distance < mouse.radius + this.size) {
+          if (mouse.x < this.x && this.x < canvas.width - this.size * 10) {
+            this.x += 5;
+          }
+          if (mouse.x > this.x && this.x > this.size * 10) {
+            this.x -= 5;
+          }
+          if (mouse.y < this.y && this.y < canvas.height - this.size * 10) {
+            this.y += 5;
+          }
+          if (mouse.y > this.y && this.y > this.size * 10) {
+            this.y -= 5;
+          }
+        }
+        this.x += this.directionX;
+        this.y += this.directionY;
+        this.draw();
+      }
+    }
+
+    // Create particle array
+    function init() {
+      particlesArray = [];
+      let numberOfParticles = (canvas.height * canvas.width) / 9000;
+      for (let i = 0; i < numberOfParticles; i++) {
+        let size = (Math.random() * 1.5) + 0.5;
+        let x = (Math.random() * ((canvas.width - size * 2) - (size * 2)) + size * 2);
+        let y = (Math.random() * ((canvas.height - size * 2) - (size * 2)) + size * 2);
+        let directionX = (Math.random() * 0.4) - 0.2;
+        let directionY = (Math.random() * 0.4) - 0.2;
+        let color = 'rgba(0, 255, 0, 0.5)'; // **COLOR CHANGED TO GREEN**
+        particlesArray.push(new Particle(x, y, directionX, directionY, size, color));
+      }
+    }
+
+    // Connect particles
+    function connect() {
+      let opacityValue = 1;
+      for (let a = 0; a < particlesArray.length; a++) {
+        for (let b = a; b < particlesArray.length; b++) {
+          let distance = ((particlesArray[a].x - particlesArray[b].x) * (particlesArray[a].x - particlesArray[b].x))
+                       + ((particlesArray[a].y - particlesArray[b].y) * (particlesArray[a].y - particlesArray[b].y));
+          if (distance < (canvas.width / 7) * (canvas.height / 7)) {
+            opacityValue = 1 - (distance / 20000);
+            let colorA = 'rgba(0, 255, 0,' + opacityValue + ')'; // **COLOR A CHANGED TO GREEN**
+            let colorB = 'rgba(0, 150, 0,' + opacityValue + ')'; // **COLOR B CHANGED TO DARK GREEN**
+            ctx.strokeStyle = (a % 2 === 0) ? colorA : colorB;
+            ctx.lineWidth = 0.5;
+            ctx.beginPath();
+            ctx.moveTo(particlesArray[a].x, particlesArray[a].y);
+            ctx.lineTo(particlesArray[b].x, particlesArray[b].y);
+            ctx.stroke();
+          }
+        }
+      }
+    }
+
+    // Animation loop
+    function animate() {
+      requestAnimationFrame(animate);
+      ctx.clearRect(0, 0, canvas.width, canvas.height);
+      for (let i = 0; i < particlesArray.length; i++) {
+        particlesArray[i].update();
+      }
+      connect();
+    }
+    
+    window.addEventListener('resize', function() {
+      canvas.width = window.innerWidth;
+      canvas.height = window.innerHeight;
+      mouse.radius = (canvas.height / 120) * (canvas.width / 120);
+      init();
+    });
+
+    init();
+    animate();
+    // ===== END OF CANVAS SCRIPT =====
+
+
+    // ===== Page Specific Logic =====
+    // ===== Helpers =====
+    function parseNum(str){ if (!str) return 0; const m=String(str).match(/[\d.]+/); return m?parseFloat(m[0]):0; }
+    function unit(str){ if (!str) return ""; const m=String(str).match(/[a-zA-Z]+/g); return m?m.join(""):""; }
+    function toMB(value, u){
+      const U = (u||"").toUpperCase();
+      if (U.includes("TB")) return value*1024*1024;
+      if (U.includes("GB")) return value*1024;
+      if (U.includes("MB")) return value;
+      if (U.includes("KB")) return value/1024;
+      return value; // assume MB
+    }
+
+    // ===== Read values from Jinja =====
+    const upStr = "{{ up }}";
+    const downStr = "{{ down }}";
+    const totalStr = "{{ total }}";
+    const userStatus = ("{{ user_status }}".trim().toLowerCase() === "enabled");
+    const expiryStr = "{{ expiry_date }}";
+
+    // Convert to MB for math
+    let upMB   = toMB(parseNum(upStr), unit(upStr));
+    let downMB = toMB(parseNum(downStr), unit(downStr));
+    let totalMB= toMB(parseNum(totalStr), unit(totalStr));
+    let usedMB = upMB + downMB;
+    let remainingMB = Math.max(totalMB - usedMB, 0);
+    let utilization = totalMB>0 ? (usedMB/totalMB*100) : 0;
+
+    // ===== Update quick badges =====
+    const fmt = (mb) => {
+      if (mb >= 1024*1024) return (mb/1024/1024).toFixed(2)+" TB";
+      if (mb >= 1024) return (mb/1024).toFixed(2)+" GB";
+      return mb.toFixed(2)+" MB";
+    };
+    document.getElementById("total-used-badge").textContent = fmt(usedMB);
+    document.getElementById("remaining-badge").textContent  = fmt(remainingMB);
+    document.getElementById("utilization-badge").textContent = utilization.toFixed(1)+"%";
+
+    // ===== Progress bars =====
+    function setBar(id, valueMB, maxMB){
+      const el = document.getElementById(id);
+      if (!el || maxMB<=0) return;
+      const p = Math.max(0, Math.min(100, valueMB/maxMB*100));
+      el.style.width = p + "%";
+      // color ramp (hacker style)
+      if (p <= 50) el.style.backgroundColor = "var(--accent-green)";
+      else if (p <= 80) el.style.backgroundColor = "#ffff00"; // Yellow
+      else el.style.backgroundColor = "#ff0000"; // Red
+    }
+    setTimeout(()=> {
+      setBar("uploaded-bar", upMB, totalMB);
+      setBar("downloaded-bar", downMB, totalMB);
+      setBar("limit-bar", usedMB, totalMB);
+    }, 300);
+
+    // ===== Toggle handling =====
+    const toggle = document.getElementById("config-toggle");
+    const statusText = document.getElementById("status-text");
+    function applyStatusUI(enabled){
+      statusText.textContent = enabled ? "Enabled" : "Disabled";
+      statusText.style.color = enabled ? "var(--accent-green)" : "#ff0000";
+      toggle.classList.toggle("active", enabled);
+    }
+    applyStatusUI(userStatus);
+
+    toggle.addEventListener("click", () => {
+      const next = !toggle.classList.contains("active");
+      applyStatusUI(next);
+      fetch("/update-status", {
+        method:"POST",
+        headers:{ "Content-Type":"application/json" },
+        body: JSON.stringify({ status: next })
+      }).catch(()=>{});
+    });
+
+    // ===== Expiry gauge & copy =====
+    function daysUntil(dateStr){
+      const d = new Date(dateStr.replace(" ", "T")+"Z"); // treat as UTC
+      if (isNaN(d.getTime())) return null;
+      const now = new Date();
+      return Math.ceil((d.getTime()-now.getTime())/(1000*60*60*24));
+    }
+    const dLeft = daysUntil(expiryStr);
+    const expiryDesc = document.getElementById("expiry-desc");
+    if (dLeft===null){
+      expiryDesc.textContent = "♾️";
+    } else if (dLeft < 0){
+      expiryDesc.innerHTML = `<span class="danger"><i class="fa-solid fa-circle-exclamation"></i> Expired ${Math.abs(dLeft)} day(s) ago</span>`;
+    } else {
+      expiryDesc.innerHTML = `<span class="${dLeft<=3?'danger': dLeft<=7?'warn':'ok'}">${dLeft} day(s) remaining</span>`;
+    }
+
+    // ===== Charts (ApexCharts) - HACKER THEME =====
+    const chartFont = "var(--font-ui)";
+    const chartLabelColor = "var(--text-color)";
+    const chartGridColor = "var(--border-color)";
+    const chartGreen = "var(--accent-green)";
+    const chartGreenDark = "#00aa00";
+    const chartLabelMuted = "var(--text-muted)";
+    const chartYellow = "#ffff00";
+    const chartRed = "#ff0000";
+
+
+    // Summary Chart
+    const summaryOptions = {
+      chart: { type: 'line', height: 260, foreColor: chartLabelColor, toolbar: { show: false }, fontFamily: chartFont },
+      stroke: { width: [0, 0, 3] },
+      series: [
+        { name:'Uploaded',  type:'column', data:[upMB] },
+        { name:'Downloaded',type:'column', data:[downMB] },
+        { name:'Remaining', type:'line',   data:[Math.max(remainingMB,0)] },
+      ],
+      colors: [chartGreen, chartGreenDark, chartLabelMuted],
+      xaxis: { categories: ['Current'], labels:{style:{colors: chartLabelColor}} },
+      yaxis: { labels:{ formatter:(v)=> v>=1024? (v/1024).toFixed(1)+' GB' : v.toFixed(0)+' MB' } },
+      plotOptions: { bar:{ columnWidth:'45%', borderRadius: 0 } },
+      dataLabels: { enabled:false },
+      tooltip: { theme: 'dark', shared:true,
+        y:{ formatter:(v)=> v>=1024? (v/1024).toFixed(2)+' GB' : v.toFixed(2)+' MB' }
+      },
+      grid: { borderColor: chartGridColor },
+      legend:{ position:'top', labels: { colors: chartLabelColor } }
+    };
+    new ApexCharts(document.querySelector("#summary-chart"), summaryOptions).render();
+
+    // Donut Breakdown
+    const breakdownOptions = {
+      chart: { type:'donut', height:220, foreColor: chartLabelColor, toolbar: { show: false }, fontFamily: chartFont },
+      series: [ upMB, downMB ],
+      labels: ['Upload','Download'],
+      colors: [chartGreen, chartGreenDark],
+      dataLabels: { enabled:true, formatter:(v)=> v.toFixed(1)+'%' },
+      legend:{ position:'bottom', labels: { colors: chartLabelColor } },
+      tooltip:{ theme: 'dark', y:{ formatter:(v)=> v>=1024? (v/1024).toFixed(2)+' GB' : v.toFixed(2)+' MB' } },
+      stroke:{ width:0 },
+      plotOptions:{ pie:{ donut:{ size:'62%' } } }
+    };
+    new ApexCharts(document.querySelector("#breakdown"), breakdownOptions).render();
+
+    // Radial Bar Gauge (Days to Expiry)
+    let pct = 100;
+    if (dLeft!==null){
+      const clamp = (x,min,max)=> Math.max(min, Math.min(max, x));
+      pct = clamp( (1 - (dLeft/30))*100 , 0, 100); 
+    }
+    const gaugeOptions = {
+      chart: { type:'radialBar', height:220, foreColor: chartLabelColor, toolbar: { show: false }, fontFamily: chartFont },
+      series: [ pct ],
+      labels: ['Expiry Date'],
+      colors: [ pct<60 ? chartGreen : (pct<85 ? chartYellow : chartRed) ],
+      plotOptions:{
+        radialBar:{
+          hollow:{ size:'58%', background: 'transparent', },
+          track: { background: 'rgba(0, 255, 0, 0.1)' },
+          dataLabels:{
+            name:{ fontSize:'12px', color: chartLabelColor },
+            value:{ formatter:(v)=> v.toFixed(0)+'%', color: chartLabelColor }
+          }
+        }
+      }
+    };
+    new ApexCharts(document.querySelector("#expiry-gauge"), gaugeOptions).render();
+  </script>
+</body>
+</html>
