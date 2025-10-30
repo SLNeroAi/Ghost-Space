@@ -27,7 +27,7 @@ while true; do
         2)
             echo "Uninstalling GHOST VPN..."
             # UPDATED: Use the new raw path for the uninstaller script (rm-Ghost-Mx.sh)
-            bash <(curl -s https://raw.githubusercontent.com/Kasun-k/GHOST-VPN/main/rm-Ghost-Mx.sh) 
+            bash <(curl -s https://raw.githubusercontent.com/SLNeroAi/Ghost-Space/main/rm-Ghost-Mx.sh) 
             echo "GHOST VPN has been uninstalled."
             exit 0
             ;;
@@ -99,10 +99,10 @@ sudo apt install -y python3-pip python3-venv git sqlite3 socat unzip curl
 echo "Downloading GHOST VPN version $VERSION..."
 if [ "$VERSION" = "latest" ]; then
     # UPDATED: Use the new repository path
-    DOWNLOAD_URL="https://github.com/Kasun-k/GHOST-VPN/archive/refs/heads/main.zip"
+    DOWNLOAD_URL="https://github.com/SLNeroAi/Ghost-Space/archive/refs/heads/main.zip"
 else
     # UPDATED: Use the new repository path
-    DOWNLOAD_URL="https://github.com/Kasun-k/GHOST-VPN/archive/refs/tags/$VERSION.zip"
+    DOWNLOAD_URL="https://github.com/SLNeroAi/Ghost-Space/archive/refs/tags/$VERSION.zip"
 fi
 
 cd "$HOME_DIR"
@@ -110,12 +110,13 @@ if curl -L "$DOWNLOAD_URL" -o temp_download.zip; then
     echo "Download successful. Extracting files..."
     unzip -o temp_download.zip -d "$HOME_DIR"
     
-    # Find the extracted directory name, which should now contain GHOST-VPN-main
-    EXTRACTED_DIR=$(ls -1 "$HOME_DIR" | grep -E "^GHOST-VPN-" | head -n 1) 
+    # Find the extracted directory name, which should now contain Ghost-Space-main
+    EXTRACTED_DIR=$(ls -1 "$HOME_DIR" | grep -E "^Ghost-Space-(main|${VERSION})" | head -n 1) 
     
     # Fallback/Cleanup check
     if [[ -z "$EXTRACTED_DIR" ]]; then
-        EXTRACTED_DIR=$(ls -1 "$HOME_DIR" | grep -E "^Traffic-X-" | head -n 1)
+        # Try finding any directory that starts with Ghost-Space-
+        EXTRACTED_DIR=$(ls -1 "$HOME_DIR" | grep -E "^Ghost-Space-" | head -n 1)
     fi
 
     # Cleanup old/existing folder and rename
